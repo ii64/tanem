@@ -1,0 +1,128 @@
+name: Go
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+    - name: Prepare build environment
+      run: |
+        mkdir build
+    - name: Build windows amd64
+      run: |
+        mkdir build/windows_amd64
+        GOOS=windows GOARCH=amd64 go build -v -o build/windows_amd64/tanem.exe cli/tanem.go
+        zip -r ./tanem-windows-amd64.zip --junk-paths build/windows_amd64/*
+
+    - name: Build windows 386
+      run: |
+        mkdir build/windows_386
+        GOOS=windows GOARCH=386 go build -v -o build/windows_386/tanem.exe cli/tanem.go
+        zip -r ./tanem-windows-386.zip --junk-paths build/windows_386/*
+        
+    - name: Build linux amd64
+      run: |
+        mkdir build/linux_amd64
+        GOOS=linux GOARCH=amd64 go build -v -o build/linux_amd64/tanem cli/tanem.go
+        zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
+        
+    - name: Build linux arm64
+      run: |
+        mkdir build/linux_arm64
+        GOOS=linux GOARCH=arm64 go build -v -o build/linux_arm64/tanem cli/tanem.go
+        zip -r ./tanem-linux-arm64.zip --junk-paths build/linux_arm64
+
+    - name: Build linux 386
+      run: |
+        mkdir build/linux_386
+        GOOS=linux GOARCH=386 go build -v -o build/linux_386/tanem cli/tanem.go
+        zip -r ./tanem-linux-386.zip --junk-paths build/linux_386/*
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with: 
+        tag_name: ${{ github.ref }}_${{ github.sha }}
+        release_name: ${{ github.ref }}
+        body: |
+          Release binary ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+        
+        
+    - name: Uploading windows amd64 binary
+      id: upload_release_windows_amd64
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tanem-windows-amd64.zip
+        asset_name: tanem-windows-amd64.zip
+        asset_content_type: application/zip
+
+    - name: Uploading windows 386 binary
+      id: upload_release_windows_386
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tanem-windows-386.zip
+        asset_name: tanem-windows-386.zip
+        asset_content_type: application/zip
+        
+        
+    - name: Uploading linux amd64 binary
+      id: upload_release_linux_amd64
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tanem-linux-amd64.zip
+        asset_name: tanem-linux-amd64.zip
+        asset_content_type: application/zip
+
+    - name: Uploading linux arm64 binary
+      id: upload_release_linux_arm64
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tanem-linux-arm64.zip
+        asset_name: tanem-linux-arm64.zip
+        asset_content_type: application/zip
+        
+    - name: Uploading linux 386 binary
+      id: upload_release_linux_386
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tanem-linux-386.zip
+        asset_name: tanem-linux-386.zip
+        asset_content_type: application/zip
