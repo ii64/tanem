@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.13
+    - name: Set up Go 1.14
       uses: actions/setup-go@v1
       with:
         go-version: 1.14
@@ -32,31 +32,31 @@ jobs:
     - name: Build windows amd64
       run: |
         mkdir build/windows_amd64
-        GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -v -o build/windows_amd64/tanem.exe cli/tanem.go
+        GOOS=windows GOARCH=amd64 go build -x -ldflags "$LDFLAGS" -v -o build/windows_amd64/tanem.exe cli/tanem.go
         zip -r ./tanem-windows-amd64.zip --junk-paths build/windows_amd64/*
 
     - name: Build windows 386
       run: |
         mkdir build/windows_386
-        GOOS=windows GOARCH=386 go build -ldflags "$LDFLAGS" -v -o build/windows_386/tanem.exe cli/tanem.go
+        GOOS=windows GOARCH=386 go build -x -ldflags "$LDFLAGS" -v -o build/windows_386/tanem.exe cli/tanem.go
         zip -r ./tanem-windows-386.zip --junk-paths build/windows_386/*
         
     - name: Build linux amd64
       run: |
         mkdir build/linux_amd64
-        GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -v -o build/linux_amd64/tanem cli/tanem.go
+        GOOS=linux GOARCH=amd64 go build -x -ldflags "$LDFLAGS" -v -o build/linux_amd64/tanem cli/tanem.go
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
         
     - name: Build linux arm64
       run: |
         mkdir build/linux_arm64
-        GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -v -o build/linux_arm64/tanem cli/tanem.go
+        GOOS=linux GOARCH=arm64 go build -x -ldflags "$LDFLAGS" -v -o build/linux_arm64/tanem cli/tanem.go
         zip -r ./tanem-linux-arm64.zip --junk-paths build/linux_arm64
 
     - name: Build linux 386
       run: |
         mkdir build/linux_386
-        GOOS=linux GOARCH=386 go build -ldflags "$LDFLAGS" -v -o build/linux_386/tanem cli/tanem.go
+        GOOS=linux GOARCH=386 go build -x -ldflags "$LDFLAGS" -v -o build/linux_386/tanem cli/tanem.go
         zip -r ./tanem-linux-386.zip --junk-paths build/linux_386/*
 
     - name: Create Release
