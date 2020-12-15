@@ -214,7 +214,7 @@ func (m *MemoryMap) Unmap(addr, size uint64) error {
 	if fx, exist := m.fileMapAddr[addr]; exist {
 		if addr+size != fx.sz {
 			return fmt.Errorf("unmap error, range 0x%08X-0x%08X does not match file map range 0x%08X-0x%08X from file %s",
-				addr, addr+size, addr, )
+				addr, addr+size, addr, fx.sz, fx.fs.Name())
 		}
 		delete(m.fileMapAddr, addr)
 	}

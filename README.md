@@ -1,5 +1,4 @@
 # tanem
----
 
 The Android Native Emulator, with Golang
 

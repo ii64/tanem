@@ -274,7 +274,7 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 		os.MkdirAll(parent, os.ModePerm)
 		pobj := GetPcb()
 		pid := pobj.GetPid()
-		filename2 := strings.Replace(filename, fmt.Sprintf("%s", pid), "self", -1)
+		filename2 := strings.Replace(filename, fmt.Sprintf("%d", pid), "self", -1)
 		mapPath := "/proc/self/maps"
 		if filename2 == mapPath {
 			f, err = os.Create(filepath)

@@ -135,7 +135,7 @@ func NativeTranslateArg(emu *Emulator, val interface{}) uint64 {
 	case *javaClass:
 		return emu.JavaVM.JniEnv.AddLocalReference(NewJObject(val.(*javaClass)))
 	}
-	panic(fmt.Errorf("%w: unable to write response '%T' %#+v", val, val))
+	panic(fmt.Errorf("unable to write response '%T' %#+v", val, val))
 	return 0
 }
 
