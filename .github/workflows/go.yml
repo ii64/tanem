@@ -31,8 +31,8 @@ jobs:
         cd cli && sudo make && cd ..
         export CLIDIR="cli"
         export CLINAME="$CLIDIR/tanem.go"
-        export CGO_CFLAG="-I$CLIDIR/deps/include"
-        export LDFLAGS="$LDFLAGS -L$CLIDIR/deps/lib"
+        cp -a "$CLIDIR/deps/include/*" /usr/include/
+        cp -a "$CLIDIR/deps/lib/*" /usr/lib/
 
     - name: Build linux amd64
       run: |
