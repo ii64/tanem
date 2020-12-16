@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := deps
-.PHONY: deps install
+.PHONY: deps
 
 # dependency targets
 DEST = $(shell mkdir -p deps/build; cd deps && pwd)
@@ -46,6 +46,7 @@ deps/lib/libkeystone.0.$(LIBEXT):
 	make -j2 install
 
 deps: deps/lib/libunicorn.1.$(LIBEXT) deps/lib/libcapstone.3.$(LIBEXT) deps/lib/libkeystone.0.$(LIBEXT)
+
 
 export CGO_CFLAGS = -I$(DEST)/include
 export CGO_LDFLAGS = -L$(DEST)/lib
