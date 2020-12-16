@@ -33,8 +33,8 @@ jobs:
         export CLINAME="$CLIDIR/tanem.go"
         pwd
         echo "$(pwd)"
-        ls -lah "cli"
-        ls -lah "$CLIDIR/deps/"
+        ls -lah "$(pwd)/cli"
+        ls -lah "$(pwd)/$CLIDIR/deps/"
         cp -a "$CLIDIR/deps/include/*" /usr/include/
         cp -a "$CLIDIR/deps/lib/*" /usr/lib/
 
