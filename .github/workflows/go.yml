@@ -28,8 +28,7 @@ jobs:
         mkdir build
         export SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
         export LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
-        cd cli && sudo make
-        && cd ..
+        cd cli && sudo make && cd ..
         export CLIDIR="cli"
         export CLINAME="$CLIDIR/tanem.go"
         export CGO_CFLAG="-I$CLIDIR/deps/include"
