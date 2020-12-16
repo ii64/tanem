@@ -42,8 +42,8 @@ jobs:
     - name: Build linux amd64
       run: |
         mkdir build/linux_amd64
+        cp -a "$LIBSFILE" build/linux_amd64
         GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $CLINAME
-        cp -a $LIBSFILE build/linux_amd64/tanem
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
 
     - name: Create Release
