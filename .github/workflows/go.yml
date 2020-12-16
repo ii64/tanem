@@ -43,13 +43,6 @@ jobs:
         GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $CLINAME
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
 
-    - name: Build linux 386
-      run: |
-        mkdir build/linux_386
-        GOOS=linux GOARCH=386 go build -x -v -o build/linux_386/tanem $CLINAME
-        zip -r ./tanem-linux-386.zip --junk-paths build/linux_386/*
-
-
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -73,15 +66,4 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./tanem-linux-amd64.zip
         asset_name: tanem-linux-amd64.zip
-        asset_content_type: application/zip
-
-    - name: Uploading linux 386 binary
-      id: upload_release_linux_386
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./tanem-linux-386.zip
-        asset_name: tanem-linux-386.zip
         asset_content_type: application/zip
