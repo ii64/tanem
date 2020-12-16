@@ -2,7 +2,7 @@
 .PHONY: deps
 
 # dependency targets
-#DEST = $(shell mkdir -p deps/build; cd deps && pwd)
+DEST = $(shell mkdir -p deps/build; cd deps && pwd)
 DEST = /usr
 FIXRPATH := touch
 LIBEXT := so
