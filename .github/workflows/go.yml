@@ -31,6 +31,8 @@ jobs:
         cd cli && sudo make && cd ..
         export CLIDIR="cli"
         export CLINAME="$CLIDIR/tanem.go"
+        pwd
+        echo "$(pwd)"
         cp -a "$CLIDIR/deps/include/*" /usr/include/
         cp -a "$CLIDIR/deps/lib/*" /usr/lib/
 
