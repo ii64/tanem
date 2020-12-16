@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := deps
-.PHONY: deps
+.PHONY: deps install
 
 # dependency targets
 DEST = $(shell mkdir -p deps/build; cd deps && pwd)
