@@ -27,6 +27,7 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get install -y libpthread-stubs0-dev
         sudo apt-get install -y libglib2*
+        sudo apt-get install -y make cmake build-essential python
         whoami
         mkdir build
         export SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
