@@ -49,6 +49,3 @@ deps: deps/lib/libunicorn.1.$(LIBEXT) deps/lib/libcapstone.3.$(LIBEXT) deps/lib/
 
 export CGO_CFLAGS = -I$(DEST)/include
 export CGO_LDFLAGS = -L$(DEST)/lib
-
-cp -a $(DEST)/lib/. /usr/lib
-cp -a $(DEST)/include/. /usr/include

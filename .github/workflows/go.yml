@@ -32,6 +32,8 @@ jobs:
         export CLINAME="$CLIDIR/tanem.go"
         export CGO_CFLAGS="-I$CLIDIR/deps/include"
         export CGO_LDFLAGS="-L$CLIDIR/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
+        cp -a "$CLIDIR/deps/include/." /usr/local/include
+        cp -a "$CLIDIR/deps/lib/." /usr/local/lib
 
     - name: Build linux amd64
       run: |
