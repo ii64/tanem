@@ -37,7 +37,7 @@ jobs:
         ls -lah "$(pwd)/$CLIDIR/deps/"
         ls -lah /
         ls -lah /usr
-        ls -lah "$(pwd)/$CLIDIR/deps/lib/*"
+        ls -lah "$(pwd)/$CLIDIR/deps/lib/"
         sudo cp "$(pwd)/$CLIDIR/deps/include/*" /usr/include/
         sudo cp "$(pwd)/$CLIDIR/deps/lib/*" /usr/lib/
 
