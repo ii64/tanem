@@ -35,18 +35,7 @@ jobs:
         export LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
         cd cli && sudo make && cd ..
 
-    - name: Build windows amd64
-      run: |
-        mkdir build/windows_amd64
-        GOOS=windows GOARCH=amd64 go build -x -ldflags "$LDFLAGS" -v -o build/windows_amd64/tanem.exe cli/tanem.go
-        zip -r ./tanem-windows-amd64.zip --junk-paths build/windows_amd64/*
 
-    - name: Build windows 386
-      run: |
-        mkdir build/windows_386
-        GOOS=windows GOARCH=386 go build -x -ldflags "$LDFLAGS" -v -o build/windows_386/tanem.exe cli/tanem.go
-        zip -r ./tanem-windows-386.zip --junk-paths build/windows_386/*
-        
     - name: Build linux amd64
       run: |
         mkdir build/linux_amd64
@@ -64,6 +53,19 @@ jobs:
         mkdir build/linux_386
         GOOS=linux GOARCH=386 go build -x -ldflags "$LDFLAGS" -v -o build/linux_386/tanem cli/tanem.go
         zip -r ./tanem-linux-386.zip --junk-paths build/linux_386/*
+
+    - name: Build windows amd64
+      run: |
+        mkdir build/windows_amd64
+        GOOS=windows GOARCH=amd64 go build -x -ldflags "$LDFLAGS" -v -o build/windows_amd64/tanem.exe cli/tanem.go
+        zip -r ./tanem-windows-amd64.zip --junk-paths build/windows_amd64/*
+
+    - name: Build windows 386
+      run: |
+        mkdir build/windows_386
+        GOOS=windows GOARCH=386 go build -x -ldflags "$LDFLAGS" -v -o build/windows_386/tanem.exe cli/tanem.go
+        zip -r ./tanem-windows-386.zip --junk-paths build/windows_386/*
+        
 
     - name: Create Release
       id: create_release
