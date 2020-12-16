@@ -35,8 +35,10 @@ jobs:
         echo "$(pwd)"
         ls -lah "$(pwd)/cli"
         ls -lah "$(pwd)/$CLIDIR/deps/"
-        cp -a "$(pwd)/$CLIDIR/deps/include/*" /usr/include/
-        cp -a "$(pwd)/$CLIDIR/deps/lib/*" /usr/lib/
+        ls -lah /
+        ls -lah /usr
+        sudo cp -a "$(pwd)/$CLIDIR/deps/include/*" /usr/include/
+        sudo cp -a "$(pwd)/$CLIDIR/deps/lib/*" /usr/lib/
 
     - name: Build linux amd64
       run: |
