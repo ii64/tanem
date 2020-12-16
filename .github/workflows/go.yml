@@ -34,6 +34,8 @@ jobs:
         export CGO_LDFLAGS="-L$CLIDIR/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
         sudo cp -a "$CLIDIR/deps/include/." /usr/include
         sudo cp -a "$CLIDIR/deps/lib/." /usr/lib
+        go mod download
+        echo "Code go mod: $?"
 
     - name: Build linux amd64
       run: |
