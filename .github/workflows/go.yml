@@ -32,8 +32,10 @@ jobs:
         export CLINAME="$CLIDIR/tanem.go"
         export CGO_CFLAGS="-I$CLIDIR/deps/include"
         export CGO_LDFLAGS="-L$CLIDIR/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
-        sudo cp -a "$CLIDIR/deps/include/." /usr/include
-        sudo cp -a "$CLIDIR/deps/lib/." /usr/lib
+        export HEADERFILE="$CLIDIR/deps/include/."
+        export LIBSFILE="$CLIDIR/deps/lib/."
+        sudo cp -a "$HEADERFILE" /usr/include
+        sudo cp -a "$LIBSFILE" /usr/lib
         go mod download
         echo "Code go mod: $?"
 
@@ -41,7 +43,7 @@ jobs:
       run: |
         mkdir build/linux_amd64
         GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $CLINAME
-        cp -a "$CLIDIR/deps/lib/." build/linux_amd64/tanem
+        cp -a "$LIBSFILE" build/linux_amd64/tanem
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
 
     - name: Create Release
