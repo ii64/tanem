@@ -25,8 +25,9 @@ jobs:
         fi
     - name: Prepare build environment
       run: |
-        apt-get update && apt-get install -y libpthread-stubs0-dev
-        apt-get install -y libglib2*
+        sudo apt-get update && sudo apt-get install -y libpthread-stubs0-dev
+        sudo apt-get install -y libglib2*
+        whoami
         mkdir build
         export SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
         export LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
