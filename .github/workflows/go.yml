@@ -30,8 +30,6 @@ jobs:
         cd cli && sudo make && cd ..
         export CLIDIR="./cli"
         export CLINAME="$CLIDIR/tanem.go"
-        export CGO_CFLAGS="-I$CLIDIR/deps/include"
-        export CGO_LDFLAGS="-L$CLIDIR/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$SHA_SUB"
 
     - name: Build linux amd64
       run: |
