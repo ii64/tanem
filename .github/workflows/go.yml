@@ -30,8 +30,7 @@ jobs:
         cd cli && sudo make && cd ..
         export B_CLIDIR="./cli"
         export B_CLINAME="$B_CLIDIR/tanem.go"
-        export B_CGO_CFLAGS="-I$B_CLIDIR/deps/include"
-        export B_CGO_LDFLAGS="-L$B_CLIDIR/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB"
+        export CGO_LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB"
         export B_HEADERFILE="$B_CLIDIR/deps/include/."
         export B_LIBSFILE="$B_CLIDIR/deps/lib/."
         sudo cp -a "$B_HEADERFILE" /usr/include
@@ -43,8 +42,6 @@ jobs:
       run: |
         mkdir build/linux_amd64
         cp -a "./cli/deps/lib" build/linux_amd64/lib
-        export B_SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
-        export CGO_LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB"
         echo $CGO_LDFLAGS
         GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem cli/tanem.go
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
