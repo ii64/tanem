@@ -86,7 +86,7 @@ func NewTanemCmd(args []string) error {
 }
 
 var (
-	GIT_COMMIT = ""
+	GIT_COMMIT = "<none>"
 )
 
 func CmdVersion() {
