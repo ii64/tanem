@@ -71,7 +71,7 @@ jobs:
         asset_name: tanem-linux-amd64.zip
         asset_content_type: application/zip
     - name: Uploading linux amd64 library
-      id: upload_release_linux_amd64
+      id: upload_release_linux_amd64_lib
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
