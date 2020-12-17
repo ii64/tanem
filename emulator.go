@@ -36,6 +36,7 @@ type Options struct {
 	VfpInstSet  bool
 	LogColor    bool
 	LogAs     	int
+	Config      *Config
 }
 func NewDefaultOptions() *Options {
 	return &Options{
@@ -90,9 +91,11 @@ func NewEmulator(opt *Options) (*Emulator, error) {
 		config: NewDefaultConfig(),
 		Mu: mu,
 	}
-	err = LoadOrCreateConfig(opt.ConfigPath, emu.config)
-	if err != nil {
-		return nil, err		
+	if opt.Config != nil {
+		err = LoadOrCreateConfig(opt.ConfigPath, emu.config)
+		if err != nil {
+			return nil, err		
+		}
 	}
 	emu.configPath   = opt.ConfigPath
 	emu.vfsRoot      = opt.VfsRoot

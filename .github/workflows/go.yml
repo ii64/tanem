@@ -43,7 +43,7 @@ jobs:
       run: |
         mkdir build/linux_amd64
         cp -a "./cli/deps/lib" build/linux_amd64/lib
-        GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $CLINAME
+        GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem cli/tanem.go
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
 
     - name: Create Release
