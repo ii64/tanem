@@ -43,8 +43,8 @@ jobs:
         mkdir build/linux_amd64
         echo $CGO_LDFLAGS
         GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $B_CLINAME
-        zip -r ./tanem-linux-amd64-lib.zip --junk-paths "$B_LIBSFILE"
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
+        zip -r ./tanem-linux-amd64-lib.zip --junk-paths "$B_CLIDIR/deps/lib/*"
 
     - name: Create Release
       id: create_release
