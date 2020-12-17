@@ -26,11 +26,9 @@ jobs:
     - name: Prepare build environment
       run: |
         mkdir build
-        export B_SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
         cd cli && sudo make && cd ..
         export B_CLIDIR="./cli"
         export B_CLINAME="$B_CLIDIR/tanem.go"
-        export CGO_LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB"
         export B_HEADERFILE="$B_CLIDIR/deps/include/."
         export B_LIBSFILE="$B_CLIDIR/deps/lib/."
         sudo cp -a "$B_HEADERFILE" /usr/include
@@ -41,10 +39,12 @@ jobs:
     - name: Build linux amd64
       run: |
         mkdir build/linux_amd64
+        export B_SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
+        export CGO_LDFLAGS="-X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB"
         echo $CGO_LDFLAGS
-        GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem $B_CLINAME
+        GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem cli/tanem.go
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
-        zip -r ./tanem-linux-amd64-lib.zip --junk-paths "$B_CLIDIR/deps/lib/*"
+        zip -r ./tanem-linux-amd64-lib.zip --junk-paths cli/deps/lib/*
 
     - name: Create Release
       id: create_release
