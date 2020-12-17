@@ -43,7 +43,8 @@ jobs:
       run: |
         mkdir build/linux_amd64
         cp -a "./cli/deps/lib" build/linux_amd64/lib
-        GOOS=linux GOARCH=amd64 go build -x -v -o build/linux_amd64/tanem cli/tanem.go
+        export B_SHA_SUB="$(echo "$GITHUB_SHA" | cut -c1-8)"
+        GOOS=linux GOARCH=amd64 go build -ldflags "-L./cli/deps/lib -X github.com/ii64/tanem/cmd.GIT_COMMIT=$B_SHA_SUB" -x -v -o build/linux_amd64/tanem cli/tanem.go
         zip -r ./tanem-linux-amd64.zip --junk-paths build/linux_amd64/*
 
     - name: Create Release
