@@ -38,6 +38,12 @@ func NewJavaVM(emu *Emulator, jcl *JavaClassLoader, hooker *Hooker, logger zl.Lo
 	jvm.JniEnv = NewJniEnv(emu, jcl, hooker)
 	return jvm
 }
+func (jvm *JavaVM) AddrPtr() uint64 {
+	return jvm.addressPtr
+}
+func (jvm *JavaVM) Addr() uint64 {
+	return jvm.address
+}
 func (jvm *JavaVM) destroyJavaVm(ctx NativeMethodContext) error {
 	return ErrNotImplemented
 }

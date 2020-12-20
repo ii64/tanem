@@ -54,7 +54,7 @@ func (sh *SyscallHandlers) handleSyscall(mu uc.Unicorn) {
 	if err != nil {
 		sh.logger.Debug().Err(err).Msg("read reg LR failed")
 	}
-	sh.logger.Info().Msgf("syscall %d lr=0x%08X", idx, lr)
+	sh.logger.Info().Msgf("syscall %s lr=0x%08X", ConvHex("0x%X",idx), lr)
 	pc, err := mu.RegRead(uc.ARM_REG_PC)
 	if err != nil {
 		sh.logger.Debug().Err(err).Msg("read reg PC failed")
@@ -70,24 +70,28 @@ func (sh *SyscallHandlers) handleSyscall(mu uc.Unicorn) {
 	}
 	if h, exist := sh.handler[idx]; exist {
 		sh.logger.Debug().
+			Str("id", ConvHex("0x%X",idx)).
 			Str("name", h.Name).
-			Uints64("args", args).
-			Uint64("pc", pc).
+			Str("args", ConvHex("0x%X",args)).
+			Str("pc", ConvHex("0x%08X",pc)).
 			Msg("executing syscall")
 		ret, hasRet := h.Callback(mu, args[:h.ArgCount]...)
 		if hasRet {
 			err = mu.RegWrite(uc.ARM_REG_R0, ret)
 		}
 		sh.logger.Debug().
+			Str("id", ConvHex("0x%X",idx)).
 			Str("name", h.Name).
 			Bool("hasRet", hasRet).
-			Uint64("ret", ret).
+			Str("pc", ConvHex("0x%08X",pc)).
+			Str("ret", ConvHex("0x%X",ret)).
 			Err(err).
 			Msg("write return")
 	}else{
 		sh.logger.Debug().
-			Uint64("idx", idx).
-			Uints64("args", args).
+			Str("idx", ConvHex("0x%X",idx)).
+			Str("args", ConvHex("0x%X",args)).
+			Str("pc", ConvHex("0x%08X",pc)).
 			Msg("unhandled syscall")
 		sh.logger.Debug().Err(mu.Stop()).Msg("stopping emulation")
 	}

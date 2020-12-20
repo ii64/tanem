@@ -2,6 +2,7 @@ package emulator
 
 import (
 //	zl  "github.com/rs/zerolog"
+//	"fmt"
 	"bytes"
 	bin "encoding/binary"
 	uc  "github.com/unicorn-engine/unicorn/bindings/go/unicorn"
@@ -36,7 +37,7 @@ func ReadUtf8(mu uc.Unicorn, address uint64) ([]byte, error) {
 			return nil, err
 		}
 		if bytes.Contains(by, []byte{0x0}) {
-			nullPos = len(by) + bytes.Index(by, []byte{0x0})
+			nullPos = bytes.Index(by, []byte{0x0})
 			foundNullPos = true
 		}
 		bb = append(bb, by...)

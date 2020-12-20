@@ -58,7 +58,7 @@ func (m *Module) CallInit(emu *Emulator) {
 	for _, funPtr := range m.initArray {
 		funAddr := funPtr
 		ret, err := emu.CallNative(funAddr)
-		log.Debug().Uint64("ret", ret).Err(err).Msgf("Calling Init_array %s function: 0x%08X!!", m.filename, funAddr)
+		log.Debug().Str("ret", ConvHex("0x%X",ret)).Err(err).Msgf("Calling Init_array %s function: 0x%08X!!", m.filename, funAddr)
 	}
 }
 

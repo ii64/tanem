@@ -2,6 +2,7 @@ package emulator
 
 import (
 	"os"
+	"fmt"
 	"strings"
 	"runtime"
 	"path/filepath"
@@ -19,11 +20,37 @@ func init() {
 	isWin = runtime.GOOS == "windows"
 }
 
+func ConvHex(ft string, p interface{}) string {
+	fmtter := ""
+	if v, ok := p.(uint64); ok {
+		return fmt.Sprintf(ft, v)
+	} else if v2, ok := p.([]uint64); ok {
+		vals := make([]interface{}, len(v2))
+		for i, v := range v2 {
+			vals[i] = v
+		}
+		fmtter = fmtter + "["
+		for i := 0; i < len(v2); i++ {
+			fmtter = fmtter + ft
+			if i < len(v2)-1 {
+				fmtter = fmtter + ","
+			}
+		}
+		fmtter = fmtter + "]"
+		return fmt.Sprintf(fmtter, vals...)
+	}
+	return fmt.Sprintf("%+v", p)
+}
+
+func IsAbs(path string) bool {
+	//https://golang.org/src/path/filepath/path_unix.go#L12
+	return strings.HasPrefix(path, "/")
+}
 func VfsPathToSystemPath(vfs_root, path string) string {
 	if isWin {
 		path = strings.Replace(path, ":", "_", -1)
 	}
-	if filepath.IsAbs(path) {
+	if IsAbs(path) {
 		return vfs_root + path
 	}
 	return vfs_root + "/system/lib/" + path

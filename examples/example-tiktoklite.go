@@ -31,9 +31,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Loaded Module:")
 	for _, md := range emu.Modules.GetModules() {
 		fmt.Println(md.Name())
 	}
 	addr, exist := libx.FindSymbol("JNI_OnLoad")
 	fmt.Printf("JNI_OnLoad addr:0x%08X exist:%v\n", addr, exist)
+	ret, err := emu.CallSymbol(libx, "JNI_OnLoad", emu.JavaVM.AddrPtr(), 0x00)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Call JNI_OnLoad ret:%X\n", ret)
 }

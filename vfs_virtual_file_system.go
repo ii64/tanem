@@ -136,7 +136,17 @@ func (vfs *VirtualFileSystem) writeHandle(mu uc.Unicorn, args ...uint64) (uint64
 }
 // syscall open
 func (vfs *VirtualFileSystem) openHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
-	return 0, true
+	var fd int64
+	filename_ptr, flags, mode := args[0], args[1], args[2]
+	filename, err := ReadUtf8(mu, filename_ptr)
+	if err != nil {
+		fd = -1
+		return uint64(fd), true
+	}
+	vfs.logger.Debug().Str("filename", string(filename)).Msg("open called")
+	_ = flags
+	fd, _ = vfs.openFile(string(filename), mode)
+	return uint64(fd), true
 }
 // syscall close
 func (vfs *VirtualFileSystem) closeHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
@@ -251,7 +261,7 @@ func (vfs *VirtualFileSystem) delFdLink(fd uintptr) {
 		}
 	}
 }
-func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
+func (vfs *VirtualFileSystem) openFile(filename string, mode uint64) (int64, *os.File) {
 	var (
 		f *os.File
 		err error
@@ -264,7 +274,7 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 		f, err = os.Create(filepath)
 		if err != nil {
 			vfs.logger.Debug().Err(err).Msg("failed to open file")
-			return nil
+			return -1, nil
 		}
 		ran := make([]byte, 128)
 		rand.Read(ran)
@@ -280,12 +290,12 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 			f, err = os.Create(filepath)
 			if err != nil {
 				vfs.logger.Debug().Err(err).Msg("failed to open file")
-				return nil
+				return -1, nil
 			}
 			err = vfs.mem.DumpMaps(f)
 			if err != nil {
 				vfs.logger.Debug().Err(err).Msg("failed to dump maps memory")
-				return nil
+				return -1, nil
 			}
 		}
 		cmdlinePath := "/proc/self/cmdline"
@@ -293,7 +303,7 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 			f, err = os.Create(filepath)
 			if err != nil {
 				vfs.logger.Debug().Err(err).Msg("failed to open file")
-				return nil
+				return -1, nil
 			}
 			f.Write([]byte(vfs.config.PkgName))
 		}
@@ -302,7 +312,7 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 			f, err = os.Create(filepath)
 			if err != nil {
 				vfs.logger.Debug().Err(err).Msg("failed to open file")
-				return nil
+				return -1, nil
 			}
 			content := fmt.Sprintf("2:cpu:/apps\n1:cpuacct:/uid/%d\n",vfs.config.Uid)
 			f.Write([]byte(content))
@@ -312,13 +322,12 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 			f, err = os.Create(filepath)
 			if err != nil {
 				vfs.logger.Debug().Err(err).Msg("failed to open file")
-				return nil
+				return -1, nil
 			}
 			statsx := []byte(strings.Replace(S_STATUS, "{pkg_name}", vfs.config.PkgName, -1))
 			f.Write(statsx)
 		}
 
-		return f
 	}
 	//
 	virtualFile := []string{
@@ -338,28 +347,32 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode int) *os.File {
 		f.Close()
 	}
 	wi, err := os.Stat(filepath)
+	fmt.Printf("filestat %+#v %s\n", wi, err)
 	if err != nil {
 		vfs.logger.Debug().Err(err).Msg("failed to see stat, it may does not exist")
-		return nil
+		return -1, nil
 	}
 	if !wi.IsDir() {
 		flags := os.O_RDWR
+		vfs.logger.Debug().Msg("+RDWR")
 		if (mode & 100) != 0 {
 			flags |= os.O_CREATE
+			vfs.logger.Debug().Msg("+CREATE")
 		}
 		if (mode & 2000) != 0 {
 			flags |= os.O_APPEND
+			vfs.logger.Debug().Msg("+APPEND")
 		}
 		fo, err := MyOpen(filepath, flags)
 		if err != nil {
 			vfs.logger.Debug().Err(err).Msgf("failed to open file, flags %d", flags)
-			return nil
+			return -1, nil
 		}
 		fdx := vfs.pcb.AddFd(filename, filepath, fo)
 		vfs.createFdLink(fdx, filepath)
-		return fo
+		return int64(fdx), fo
 	}
-	return nil
+	return -1, nil
 }
 
 
