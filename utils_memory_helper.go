@@ -8,6 +8,37 @@ import (
 	uc  "github.com/unicorn-engine/unicorn/bindings/go/unicorn"
 )
 
+func IntToBytes(i int64, sz int) (r []byte) {
+	if sz == 4 {
+		r = make([]byte, sz)
+		bin.LittleEndian.PutUint32(r, uint32(i))
+		return r
+	}else if sz == 8 {
+		r = make([]byte, sz)
+		bin.LittleEndian.PutUint64(r, uint64(i))
+		return r
+	}else{
+		// set 0
+		r = make([]byte, sz)
+	}
+	return r
+}
+func LE_BytesToUint64(b []byte) uint64 {
+	return bin.LittleEndian.Uint64(b)
+}
+func LE_BytesToUint32(b []byte) uint32 {
+	return bin.LittleEndian.Uint32(b)
+}
+func LE_BytesToUint(b []byte) uint64 {
+	if l := len(b); l == 4 {
+		return uint64(LE_BytesToUint32(b))
+	}else if l == 8 {
+		return LE_BytesToUint64(b)
+	}
+	//idk
+	return 0
+}
+
 func ReadPtr(mu uc.Unicorn, address uint64) (uint64, error) {
 	var sz uint64 = 4
 	by, err := mu.MemRead(address, sz)

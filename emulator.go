@@ -168,8 +168,8 @@ func NewEmulator(opt *Options) (*Emulator, error) {
 	)
 	//Stack
 	emu.logger.Debug().
-		Uint64("begin", STACK_ADDR).
-		Uint64("size", STACK_SIZE).
+		Str("begin", ConvHex("%08X",STACK_ADDR)).
+		Str("size", ConvHex("%08X",STACK_SIZE)).
 		Msg("mapping stack memory")
 	addr, err := emu.Memory.Map(
 		STACK_ADDR,
@@ -187,7 +187,7 @@ func NewEmulator(opt *Options) (*Emulator, error) {
 	if err != nil {
 		return nil, err
 	}
-	emu.logger.Info().Uint64("stack", sp).Msg("stack address")
+	emu.logger.Info().Str("stack", ConvHex("%08X", sp)).Msg("stack address")
 
 	//CPU
 	emu.logger.Debug().Msg("init syscall handler")

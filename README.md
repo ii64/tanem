@@ -2,6 +2,8 @@
 
 The Android Native Emulator, with Golang
 
+![tanem-cli](assets/fig1.png)
+
 ## Dependencies
 
 - [Unicorn CPU emulator framework](https://github.com/unicorn-engine/unicorn)
@@ -9,6 +11,7 @@ The Android Native Emulator, with Golang
 
 
 ### Text sources
+- https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md#arm-32_bit_EABI
 - https://greek0.net/elf.html
 - https://stackoverflow.com/questions/13908276/loading-elf-file-in-c-in-user-space
 - https://programtalk.com/python-examples/pyelftools.elftools.elf.relocation.Relocation/

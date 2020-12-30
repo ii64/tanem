@@ -49,7 +49,7 @@ func (p *Pcb) HasFd(fd uintptr) bool {
 	_, exist := p.fds[fd]
 	return exist
 }
-func (p *Pcb) Removed(fd uintptr) {
+func (p *Pcb) Remove(fd uintptr) {
 	if p.HasFd(fd) {
 		p.fds[fd].CloseResource()
 		delete(p.fds, fd)

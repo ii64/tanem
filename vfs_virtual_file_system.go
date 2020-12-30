@@ -125,16 +125,75 @@ func (vfs *VirtualFileSystem) ClearProcDir() error {
 	}
 	return nil
 }
-// syscall read
+/* syscall read
+ssize_t read(int fd, void *buf, size_t count);
+*/
 func (vfs *VirtualFileSystem) readHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
-	vfs.logger.Debug().Msg("read called")
-	return 0, true
+	fd, bufAddr, count := args[0], args[1], args[2]
+	if fd <= 2 {
+		vfs.logger.Debug().Uint64("fd", fd).Msg("skip read fd")
+		return 0, true
+	}
+	vf := vfs.pcb.GetFdDetail(uintptr(fd))
+	if vf != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Msg("fd not exist")
+		return 0, true
+	}
+	// prevent screw up heap
+	if st, err := vf.fo.Stat(); err == nil {
+		if maxSz := uint64(st.Size()); count > maxSz {
+			count = maxSz
+		}
+	}else{
+		vfs.logger.Debug().Uint64("fd", fd).Err(err).Err(err).Msg("read syscall unable file stat")
+		return 0, true
+	}
+	buf := make([]byte, int(count))
+	sz, err := vf.fo.Read(buf);
+	if err != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Err(err).Msg("read syscall error!")
+		return 0, true
+	}
+	err = mu.MemWrite(bufAddr, buf[:sz])
+	if err != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Err(err).Msg("read syscall write buf error")
+		return 0, true
+	}
+	vfs.logger.Debug().Uint64("fd", fd).Int("sz", sz).Msg("read syscall readed")
+	return uint64(sz), true
 }
-// syscall write
+/* syscall write */
 func (vfs *VirtualFileSystem) writeHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
-	return 0, true
+	fd, bufAddr, count := args[0], args[1], args[2]
+	data, err := mu.MemRead(bufAddr, count)
+	if err != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Err(err).Msg("write syscall read buf error")
+		return 0, true
+	}
+	if fd == 1 { // stdout
+		vfs.logger.Debug().Bytes("stdout", data).Msg("write to stdout")
+		return uint64(len(data)), true
+	} else if fd == 2 { // stderr
+		vfs.logger.Debug().Bytes("stderr", data).Msg("write to stderr")
+		return uint64(len(data)), true
+	}
+
+	vf := vfs.pcb.GetFdDetail(uintptr(fd))
+	var n int
+	if vf != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Msg("write fd not exist")
+		n = -1
+		return uint64(n), true
+	}
+	n, err = vf.fo.Write(data)
+	if err != nil {
+		vfs.logger.Debug().Uint64("fd", fd).Err(err).Msg("write fd failed")
+		n = -1
+		return uint64(n), true
+	}
+	return uint64(n), true
 }
-// syscall open
+/* syscall open */
 func (vfs *VirtualFileSystem) openHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
 	var fd int64
 	filename_ptr, flags, mode := args[0], args[1], args[2]
@@ -150,7 +209,13 @@ func (vfs *VirtualFileSystem) openHandle(mu uc.Unicorn, args ...uint64) (uint64,
 }
 // syscall close
 func (vfs *VirtualFileSystem) closeHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
-	return 0, true
+	fd := uintptr(args[0])
+	if vfs.pcb.HasFd(fd) {
+		vfs.pcb.Remove(fd)
+		return 0, true
+	}
+	var tmp int64 = -1
+	return uint64(tmp), true
 }
 // syscall unlink
 func (vfs *VirtualFileSystem) unlinkHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
@@ -198,10 +263,74 @@ func (vfs *VirtualFileSystem) getdents64Handle(mu uc.Unicorn, args ...uint64) (u
 }
 // syscall fcntl64
 func (vfs *VirtualFileSystem) fcntl64Handle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
+	if isWin {
+		return 0, true
+	}
+	//TODO
 	return 0, true
 }
 // syscall statfs64
 func (vfs *VirtualFileSystem) statfs64Handle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
+	// char* path, size_t sz, void* buf	
+	pathAddr, _, buf := args[0], args[1], args[2]
+	path, err := ReadUtf8(mu, pathAddr)
+	if err != nil {
+		vfs.logger.Debug().Err(err).Msg("statfs64 read utf faied")
+		return 0, true
+	}
+	pathStr := string(path)
+	hpath := vfs.TranslatePath(pathStr)
+	vfs.logger.Debug().Str("path", pathStr).Str("hpath", hpath).Msg("statfs64")
+	//if isWin {}
+	// TODO, currently hardcoded
+	// statvfs is Linux syscall 
+	//fs, err := os.Stat(hpath)
+	//if err == nil {
+	//	vfs.logger.Debug().Err(err).Msg("statfs64 stat failed")
+	//	return 0, true
+	//}
+	var (
+        f_bsize  int64 = 4096
+        f_blocks int64 = 3290543
+        f_bfree  int64 = 2499155
+        f_bavail int64 = 2499155
+        f_files  int64 = 838832
+        f_ffree  int64 = 828427
+        f_fsid   int64 = 2
+        f_frsize  int64 = 4096
+        f_namemax int64 = 255
+        f_flags    int64 = 1024 // 1062
+	)
+	/*
+	f_bsize=4096
+	f_frsize=4096
+	f_blocks=432508667
+	f_bfree=345075205
+	f_bavail=345075205
+	f_files=999
+	f_ffree=1000000
+	f_favail=1000000
+	f_flag=1024
+	f_namemax=255
+	*/
+	for i, err := range []error{
+		mu.MemWrite(buf, IntToBytes(0xef53, 4)), //
+		mu.MemWrite(buf+4, IntToBytes(f_bsize, 4)),
+		mu.MemWrite(buf+8, IntToBytes(f_blocks, 8)),
+		mu.MemWrite(buf+16, IntToBytes(f_bfree, 8)),
+		mu.MemWrite(buf+24, IntToBytes(f_bavail, 8)),
+		mu.MemWrite(buf+32, IntToBytes(f_files, 8)),
+		mu.MemWrite(buf+40, IntToBytes(f_ffree, 8)),
+		mu.MemWrite(buf+48, IntToBytes(f_fsid, 8)),
+		mu.MemWrite(buf+56, IntToBytes(f_namemax, 4)),
+		mu.MemWrite(buf+60, IntToBytes(f_frsize, 4)),
+		mu.MemWrite(buf+64, IntToBytes(f_flags, 4)),
+		mu.MemWrite(buf+68, IntToBytes(0, 16)),
+	} {
+		if err != nil {
+			vfs.logger.Debug().Int("f", i).Err(err).Msg("statfs64 write ptr failed")
+		}
+	}
 	return 0, true
 }
 // syscall openat
@@ -276,7 +405,7 @@ func (vfs *VirtualFileSystem) openFile(filename string, mode uint64) (int64, *os
 			vfs.logger.Debug().Err(err).Msg("failed to open file")
 			return -1, nil
 		}
-		ran := make([]byte, 128)
+		ran := make([]byte, 2<<6)
 		rand.Read(ran)
 		f.Write(ran)
 	}else if strings.HasPrefix(filename, "/proc") {

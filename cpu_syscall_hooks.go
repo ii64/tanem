@@ -26,7 +26,6 @@ func NewSyscallHooks(mu uc.Unicorn, sh *SyscallHandlers) *SyscallHooks {
 		sh: sh,
 	}
 	//system call table
-	//https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md#arm-32_bit_EABI
 	s.sh.SetHandler(0x2, "fork", 0, s.forkHandle)
 	s.sh.SetHandler(0x0B, "execve", 3, s.execveHandle)
 	s.sh.SetHandler(0x14, "getpid", 0, s.getpidHandle)
@@ -66,7 +65,7 @@ func (s *SyscallHooks) SetLogger(logger zl.Logger) {
 // syscall fork
 func (s *SyscallHooks) forkHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
 	s.logger.Debug().Msg("fork called")
-	return 0, true
+	return 0, true // child process..
 }
 // syscall execve
 func (s *SyscallHooks) execveHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
@@ -134,6 +133,39 @@ func (s *SyscallHooks) gettidHandle(mu uc.Unicorn, args ...uint64) (uint64, bool
 }
 // syscall futex
 func (s *SyscallHooks) futexHandle(mu uc.Unicorn, args ...uint64) (uint64, bool) {
+	uaddr, op, val, timeout, uaddr2, val3 := args[0], args[1], args[2], args[3], args[4], args[5]
+	_,_,_=timeout,uaddr2,val3
+	v, err := mu.MemRead(uaddr, 4)
+	if err != nil {
+		s.logger.Debug().Msg("futex uaddr read failed")
+	}
+	uaddrVal := LE_BytesToUint(v)
+	cmd := op & FUTEX_CMD_MASK
+	s.logger.Debug().
+		Str("op", ConvHex("%08X", op)).
+		Str("cmd", ConvHex("%X", cmd)).
+		Str("*uaddr", ConvHex("%08X", uaddrVal)).
+		Str("val", ConvHex("%08X", val)).
+		Msg("futex call")
+	if cmd == FUTEX_WAIT || cmd == FUTEX_WAIT_BITSET {
+		if uaddrVal == val {
+			//sorry, you can use recoveer anyway..
+			panic("ERROR!!! FUTEX_WAIT or FUTEX_WAIT_BITSET dead lock !!! *uaddr == val, impossible for single thread program!!!")
+		}
+		return 0, true
+	}else if cmd == FUTEX_WAKE {
+		return 0, true
+	}else if cmd == FUTEX_FD {
+		panic(ErrNotImplemented)
+	}else if cmd == FUTEX_REQUEUE {
+		panic(ErrNotImplemented)
+	}else if cmd == FUTEX_CMP_REQUEUE {
+		panic(ErrNotImplemented)
+	}else if cmd == FUTEX_WAKE_BITSET {
+		return 0, true
+	}else{
+		panic(ErrNotImplemented)
+	}
 	return 0, true
 }
 // syscall tgkill
