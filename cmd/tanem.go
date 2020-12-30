@@ -5,8 +5,21 @@ import (
 	"time"
 	"strings"
 	"runtime"
+	"github.com/mattn/go-colorable"
 	cli "github.com/urfave/cli/v2"
 	tn  "github.com/ii64/tanem"
+)
+
+const (
+	BANNER = "\033[1;37m   __                           \n  / /_____ _____  ___  ____ ___ \n / __/ __ `/ __ \\/ _ \\/ __ `__ \\\n/ /_/ /_/ / / / /  __/ / / / / /\n\\__/\\__,_/_/ /_/\\___/_/ /_/ /_/\033[0m \033[1;36mv{version}\033[0m\n"
+)
+
+var (
+	GIT_COMMIT = "<none>"
+	CLI_VERSION = "0.1.1"
+)
+var (
+	OUT = colorable.NewColorableStdout()
 )
 
 func NewTanemCmd(args []string) error {
@@ -75,22 +88,24 @@ func NewTanemCmd(args []string) error {
 				return err
 			}
 			
-
+			// TODO
 			_ = emu
 
 
 			return nil
 		},
 	}
+	ShowBanner()
 	return app.Run(args)
 }
 
-var (
-	GIT_COMMIT = "<none>"
-)
+func ShowBanner() {
+	fmt.Fprintf(OUT, "%s\n", strings.Replace(BANNER, "{version}", CLI_VERSION, -1))
+}
 
 func CmdVersion() {
 	var formatted = [][]string{
+		{"Version:", "v"+CLI_VERSION},
 		{"Git commit:", GIT_COMMIT},
 		{"Go version:", runtime.Version()},
 		{"OS/Arch:", runtime.GOOS+"/"+runtime.GOARCH},
