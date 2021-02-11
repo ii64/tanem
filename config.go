@@ -1,8 +1,8 @@
 package emulator
 
 import (
-	"os"
 	"encoding/json"
+	"os"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 	HOOK_MEMORY_SIZE uint64 = 0x00200000
 
 	MAP_ALLOC_BASE uint64 = 0x30000000
-	MAP_ALLOC_SIZE uint64 = 0xA0000000-MAP_ALLOC_BASE
+	MAP_ALLOC_SIZE uint64 = 0xA0000000 - MAP_ALLOC_BASE
 
 	BASE_ADDR uint64 = 0xCBBCB000
 
@@ -25,22 +25,22 @@ var (
 )
 
 type Config struct {
-	PkgName     string   `json:"pkg_name"`
-	Pid         int      `json:"pid"`
-	Uid         int      `json:"uid"`
-	AndroidID   string   `json:"android_id"`
-	Ip          string   `json:"ip"`
-	Mac         []byte   `json:"mac"`
+	PkgName   string `json:"pkg_name"`
+	Pid       int    `json:"pid"`
+	Uid       int    `json:"uid"`
+	AndroidID string `json:"android_id"`
+	Ip        string `json:"ip"`
+	Mac       Mac    `json:"mac"`
 }
 
 func NewDefaultConfig() *Config {
 	return &Config{
-		PkgName: "com.example",
-		Pid: 4386,
-		Uid: 10023,
+		PkgName:   "com.example",
+		Pid:       4386,
+		Uid:       10023,
 		AndroidID: "39cc04a2ae83db0b",
-		Ip: "192.168.43.22",
-		Mac: []byte{204, 250, 166, 0, 138, 169},
+		Ip:        "192.168.43.22",
+		Mac:       Mac{204, 250, 166, 0, 138, 169},
 	}
 }
 
